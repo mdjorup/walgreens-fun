@@ -218,7 +218,7 @@ export default function PositionsDashboard({ portfolio }: PortofolioDashboardPro
                   💰 Portfolio 💰
                 </CardTitle>
                 <CardDescription className="text-base">
-                  🎯 Our portfolio across all asset types • Last updated: {formatRelative(new Date(lastUpdated), new Date())}
+                  🎯 Our portfolio across all asset types
                 </CardDescription>
               </div>
             </div>
