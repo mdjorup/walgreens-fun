@@ -9,29 +9,53 @@ import yahooFinance from 'yahoo-finance2';
 export const revalidate = 60;
 
 const getStockPrice = async (position: StockPosition): Promise<number> => {
+  try {
+    const quote = await yahooFinance.quote(position.ticker);
+    const price = quote.regularMarketPrice;
 
-  const quote = await yahooFinance.quote(position.ticker);
+    if (price === undefined) {
+      console.warn("Unable to get price for position", position);
+      return position.purchasePrice;
+    }
 
-  const price = quote.regularMarketPrice;
-
-  if (price === undefined) {
-    console.warn("Unable to get price for position", position);
+    return price;
+  } catch (error) {
+    console.error(`Failed to fetch stock price for ${position.ticker}:`, error);
+    // Return purchase price as fallback during build
     return position.purchasePrice;
   }
-
-  return price;
-
 }
 
 const getKalshiMarketData = async (position: KalshiPosition): Promise<KalshiMarketData> => {
   try {
-    const marketsResponse = await fetch(`https://api.elections.kalshi.com/trade-api/v2/markets/${position.ticker}`);
+    const marketsResponse = await fetch(`https://api.elections.kalshi.com/trade-api/v2/markets/${position.ticker}`, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (compatible; NextJS App)',
+      },
+      // Add timeout to prevent hanging during build
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    });
     
     if (!marketsResponse.ok) {
       throw new Error(`Kalshi API error: ${marketsResponse.status}`);
     }
     
-    const marketsData: KalshiApiResponse = await marketsResponse.json();
+    const responseText = await marketsResponse.text();
+    
+    // Check if response is valid JSON
+    if (!responseText.trim()) {
+      throw new Error('Empty response from Kalshi API');
+    }
+    
+    let marketsData: KalshiApiResponse;
+    try {
+      marketsData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error(`Invalid JSON response from Kalshi API for ${position.ticker}:`, responseText.substring(0, 200));
+      throw new Error(`Invalid JSON response: ${parseError}`);
+    }
+    
     return marketsData.market;
   } catch (error) {
     console.error(`Failed to fetch Kalshi market data for ${position.ticker}:`, error);
@@ -105,7 +129,7 @@ const getPositionValue = async (position: Position): Promise<PositionWithPrice> 
     }
   } else if (position.type === "stock") {
     // For stocks, get real-time price from Yahoo Finance
-    let currentPrice = await getStockPrice(position);
+    const currentPrice = await getStockPrice(position);
     const originalValue= position.amount * position.purchasePrice
 
     const currentValue = currentPrice * position.amount;
@@ -156,7 +180,7 @@ const getPositionValue = async (position: Position): Promise<PositionWithPrice> 
   }
 
   // This should never be reached due to TypeScript's exhaustive checking
-  throw new Error(`Unknown position type: ${(position as any).type}`);
+  throw new Error(`Unknown position type: ${(position)}`);
 }
 
 
@@ -166,14 +190,59 @@ export interface Portfolio {
 }
 
 const getPortfolio = async (): Promise<Portfolio> => {
-  const positionsWithPrices = await Promise.all(
-    POSITIONS.map((position) => getPositionValue(position))
-  );
+  try {
+    // Use Promise.allSettled to handle individual position failures gracefully
+    const positionResults = await Promise.allSettled(
+      POSITIONS.map((position) => getPositionValue(position))
+    );
 
-  return {
-    positions: positionsWithPrices,
-    lastUpdated: new Date().toISOString(),
-  };
+    const positionsWithPrices = positionResults.map((result, index) => {
+      if (result.status === 'fulfilled') {
+        return result.value;
+      } else {
+        console.error(`Failed to get value for position ${index}:`, result.reason);
+        // Return a fallback position with purchase price as current price
+        const position = POSITIONS[index];
+        return {
+          ...position,
+          currentPrice: position.type === 'cash' ? 1 : position.purchasePrice,
+          currentValue: position.type === 'cash' ? position.amount : 
+                       position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
+                       position.amount * position.purchasePrice,
+          totalReturn: 0,
+          originalValue: position.type === 'cash' ? position.amount : 
+                        position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
+                        position.amount * position.purchasePrice,
+          ...(position.type === 'kalshi' && { fees: position.fees || 0, netReturn: 0 })
+        } as PositionWithPrice;
+      }
+    });
+
+    return {
+      positions: positionsWithPrices,
+      lastUpdated: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Failed to get portfolio:', error);
+    // Return a minimal portfolio with fallback data
+    const fallbackPositions = POSITIONS.map(position => ({
+      ...position,
+      currentPrice: position.type === 'cash' ? 1 : position.purchasePrice,
+      currentValue: position.type === 'cash' ? position.amount : 
+                   position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
+                   position.amount * position.purchasePrice,
+      totalReturn: 0,
+      originalValue: position.type === 'cash' ? position.amount : 
+                    position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
+                    position.amount * position.purchasePrice,
+      ...(position.type === 'kalshi' && { fees: position.fees || 0, netReturn: 0 })
+    })) as PositionWithPrice[];
+
+    return {
+      positions: fallbackPositions,
+      lastUpdated: new Date().toISOString(),
+    };
+  }
 }
 
 export default async function Home() {

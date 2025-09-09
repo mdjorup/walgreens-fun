@@ -1,45 +1,13 @@
 
 import { PositionWithPrice, KalshiPositionWithPrice } from '@/types/positions';
-import { TrendingUp, TrendingDown, DollarSign, BarChart3, Coins, Target, Trophy, Shield, Star, Zap, Flame } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, BarChart3, Coins, Target } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Portfolio } from '@/app/page';
-import { formatDistance, formatRelative } from 'date-fns';
-// Simple button component for now
-interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
-  disabled?: boolean;
-  variant?: "default" | "outline";
-  size?: "default" | "sm";
-  className?: string;
-  [key: string]: any;
-}
+import {  formatRelative } from 'date-fns';
 
 //e5658245-0f5c-4bfb-abc9-3f6c63a4507c 
 
-const Button = ({ children, onClick, disabled, variant = "default", size = "default", className = "", ...props }: ButtonProps) => {
-  const baseClasses = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
-  const variantClasses: Record<string, string> = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-  };
-  const sizeClasses: Record<string, string> = {
-    default: "h-10 px-4 py-2",
-    sm: "h-9 rounded-md px-3",
-  };
-  
-  return (
-    <button
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
 
 const getAssetIcon = (type: string) => {
   switch (type) {
@@ -80,11 +48,6 @@ const formatCurrency = (amount: number) => {
 
 const formatPercentage = (percentage: number) => {
   return `${percentage >= 0 ? '+' : ''}${percentage.toFixed(2)}%`;
-};
-
-const formatTimestamp = (timestamp: string | null) => {
-  if (!timestamp) return 'Never';
-  return new Date(timestamp).toLocaleString();
 };
 
 // Helper function to safely get link from position
@@ -207,12 +170,10 @@ export default function PositionsDashboard({ portfolio }: PortofolioDashboardPro
 
   const total = positions.reduce((sum, position) => sum + position.currentValue, 0);
   const originalTotal = 420;
-  console.log(originalTotal)
   const returnPercentage = originalTotal > 0 ? ((total - originalTotal) / originalTotal) * 100 : 0;
 
   const totalValue = total;
   const totalReturn = returnPercentage;
-  const positionCount = positions.length;
   const isPositive = returnPercentage > 0
 
 
