@@ -157,8 +157,8 @@ const getPositionValue = async (position: Position): Promise<PositionWithPrice> 
     }
     
     // Original cost basis includes the purchase price + fees (sunk cost)
-    const originalValue = (position.purchasePrice * position.contracts) + (position.fees || 0);
-    const currentValue = currentPrice * position.contracts;
+    const originalValue = (position.purchasePrice * position.contracts) + (position.fees || 0) + position.extraCash;
+    const currentValue = currentPrice * position.contracts + position.extraCash;
     
     // Total return includes fees as sunk cost
     const totalReturn = originalValue > 0 ? ((currentValue - originalValue) / originalValue) * 100 : 0;

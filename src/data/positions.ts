@@ -10,10 +10,15 @@ export const POSITIONS: Position[] = [
     },
     {
         "id": 1,
-        "type": "cash",
-        "positionName": "Cash",
-        "amount": 35,
+        "type": "kalshi",
+        "positionName": "Exactly 2 Rate Cuts in 2025",
+        "purchasePrice": 0.38,
+        "contracts": 88,
         "personName": "Michael",
+        "ticker": "KXRATECUTCOUNT-25DEC31-T2",
+        "extraCash": 0.10,
+        "fees": 1.46,
+        "side": "yes"
     },
     {
         "id": 2,
