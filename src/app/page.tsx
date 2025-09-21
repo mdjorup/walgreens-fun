@@ -130,9 +130,8 @@ const getPositionValue = async (position: Position): Promise<PositionWithPrice> 
   } else if (position.type === "stock") {
     // For stocks, get real-time price from Yahoo Finance
     const currentPrice = await getStockPrice(position);
-    const originalValue= position.amount * position.purchasePrice
-
-    const currentValue = currentPrice * position.amount;
+    const originalValue = (position.amount * position.purchasePrice) + position.extraCash;
+    const currentValue = (currentPrice * position.amount) + position.extraCash;
     const totalReturn = originalValue > 0 ? ((currentValue - originalValue) / originalValue) * 100 : 0;
 
     return {
@@ -163,7 +162,7 @@ const getPositionValue = async (position: Position): Promise<PositionWithPrice> 
     // Total return includes fees as sunk cost
     const totalReturn = originalValue > 0 ? ((currentValue - originalValue) / originalValue) * 100 : 0;
     
-    // Net return excludes fees (for comparison purposes)
+    // Net return excludes fees (for comparison purposes) - compares current price to purchase price
     const netReturn = position.purchasePrice > 0 ? 
       ((currentPrice - position.purchasePrice) / position.purchasePrice) * 100 : 0;
 
@@ -207,12 +206,12 @@ const getPortfolio = async (): Promise<Portfolio> => {
           ...position,
           currentPrice: position.type === 'cash' ? 1 : position.purchasePrice,
           currentValue: position.type === 'cash' ? position.amount : 
-                       position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
-                       position.amount * position.purchasePrice,
+                       position.type === 'kalshi' ? (position.contracts * position.purchasePrice) + position.extraCash : 
+                       (position.amount * position.purchasePrice) + position.extraCash,
           totalReturn: 0,
           originalValue: position.type === 'cash' ? position.amount : 
-                        position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
-                        position.amount * position.purchasePrice,
+                        position.type === 'kalshi' ? (position.contracts * position.purchasePrice) + (position.fees || 0) + position.extraCash : 
+                        (position.amount * position.purchasePrice) + position.extraCash,
           ...(position.type === 'kalshi' && { fees: position.fees || 0, netReturn: 0 })
         } as PositionWithPrice;
       }
@@ -229,12 +228,12 @@ const getPortfolio = async (): Promise<Portfolio> => {
       ...position,
       currentPrice: position.type === 'cash' ? 1 : position.purchasePrice,
       currentValue: position.type === 'cash' ? position.amount : 
-                   position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
-                   position.amount * position.purchasePrice,
+                   position.type === 'kalshi' ? (position.contracts * position.purchasePrice) + position.extraCash : 
+                   (position.amount * position.purchasePrice) + position.extraCash,
       totalReturn: 0,
       originalValue: position.type === 'cash' ? position.amount : 
-                    position.type === 'kalshi' ? position.contracts * position.purchasePrice : 
-                    position.amount * position.purchasePrice,
+                    position.type === 'kalshi' ? (position.contracts * position.purchasePrice) + (position.fees || 0) + position.extraCash : 
+                    (position.amount * position.purchasePrice) + position.extraCash,
       ...(position.type === 'kalshi' && { fees: position.fees || 0, netReturn: 0 })
     })) as PositionWithPrice[];
 

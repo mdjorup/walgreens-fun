@@ -46,7 +46,7 @@ export const POSITIONS: Position[] = [
         "contracts": 106,
         "personName": "Oliver",
         "ticker": "KXCARPENTERWEEKSNUM1-26JAN01-2",
-        "extraCash": 0.02,
+        "extraCash": 0.51,
         "fees": 1.63,
         "side": "yes"
     },
@@ -58,7 +58,7 @@ export const POSITIONS: Position[] = [
         "contracts": 43,
         "personName": "Jon",
         "ticker": "KXTIME-25-PLEOXIV",
-        "extraCash": 0.22,
+        "extraCash": 0.11,
         "fees": 0.49,
         "side": "no"
     },
@@ -120,10 +120,15 @@ export const POSITIONS: Position[] = [
     },
     {
         "id": 11,
-        "type": "cash",
-        "positionName": "Cash",
-        "amount": 35,
+        "type": "kalshi",
+        "positionName": "Bengals Over 6.5 Wins",
+        "purchasePrice": 0.74,
+        "contracts": 46,
         "personName": "Sam",
+        "ticker": "KXNFLWINS-CIN-25B-T6",
+        "extraCash": 0.34,
+        "fees": 0.62,
+        "side": "yes"
     },
     
 ]
