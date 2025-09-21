@@ -186,7 +186,7 @@ export default function PositionsDashboard({ portfolio }: PortofolioDashboardPro
               <div className="text-center p-6 bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-xl border-2 border-yellow-300 dark:border-yellow-700 transform hover:scale-105 transition-transform duration-300 shadow-lg">
                 <div className="text-3xl mb-2">🥇</div>
                 <div className="text-3xl font-bold text-yellow-700 dark:text-yellow-300 mb-2">
-                  {formatCurrency(totalValue * 0.5)}
+                  {formatCurrency(totalValue * 0.625)}
                 </div>
                 <div className="text-lg font-semibold text-yellow-800 dark:text-yellow-200">1st Place</div>
                 <div className="text-sm text-yellow-600 dark:text-yellow-400">50% 🏆</div>
@@ -194,7 +194,7 @@ export default function PositionsDashboard({ portfolio }: PortofolioDashboardPro
               <div className="text-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800/30 dark:to-gray-700/30 rounded-xl border-2 border-gray-300 dark:border-gray-600 transform hover:scale-105 transition-transform duration-300 shadow-lg">
                 <div className="text-3xl mb-2">🥈</div>
                 <div className="text-3xl font-bold text-gray-700 dark:text-gray-300 mb-2">
-                  {formatCurrency(totalValue * 0.3)}
+                  {formatCurrency(totalValue * 0.25)}
                 </div>
                 <div className="text-lg font-semibold text-gray-800 dark:text-gray-200">2nd Place</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">30% 💪</div>
@@ -202,7 +202,7 @@ export default function PositionsDashboard({ portfolio }: PortofolioDashboardPro
               <div className="text-center p-6 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30 rounded-xl border-2 border-orange-300 dark:border-orange-700 transform hover:scale-105 transition-transform duration-300 shadow-lg">
                 <div className="text-3xl mb-2">🥉</div>
                 <div className="text-3xl font-bold text-orange-700 dark:text-orange-300 mb-2">
-                  {formatCurrency(totalValue * 0.2)}
+                  {formatCurrency(totalValue * 0.125)}
                 </div>
                 <div className="text-lg font-semibold text-orange-800 dark:text-orange-200">3rd Place</div>
                 <div className="text-sm text-orange-600 dark:text-orange-400">20% 🎯</div>
